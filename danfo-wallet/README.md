@@ -8,7 +8,7 @@ Danfo Wallet is a secure, offline-first digital wallet focused on travel credent
 npm install
 ```
 
-Create a `.env` (or use your shell) with the Supabase connection values:
+Create a `.env` (or use your shell) with the Supabase connection values (start from `.env.example`):
 
 ```
 EXPO_PUBLIC_SUPABASE_URL=your-project-url
