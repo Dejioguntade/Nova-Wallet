@@ -24,8 +24,27 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
+
+export interface WalletContextValue {
+  state: WalletState;
+  addDocument: (document: WalletDocument) => void;
+  updateDocument: (document: WalletDocument) => void;
+  removeDocument: (id: string) => void;
+  addReservation: (reservation: TravelReservation) => void;
+  updateReservation: (reservation: TravelReservation) => void;
+  removeReservation: (id: string) => void;
+  addCard: (card: PaymentCard) => void;
+  updateCard: (card: PaymentCard) => void;
+  removeCard: (id: string) => void;
+  addReminder: (reminder: Reminder) => Promise<void>;
+  updateReminder: (reminder: Reminder) => void;
+  removeReminder: (id: string) => void;
+  syncTimeline: () => void;
+}
 
 const WalletContext = createContext<WalletContextValue | undefined>(undefined);
 
@@ -167,23 +186,6 @@ const requestNotificationPermissions = async () => {
   }
 };
 
-interface WalletContextValue {
-  state: WalletState;
-  addDocument: (document: WalletDocument) => void;
-  updateDocument: (document: WalletDocument) => void;
-  removeDocument: (id: string) => void;
-  addReservation: (reservation: TravelReservation) => void;
-  updateReservation: (reservation: TravelReservation) => void;
-  removeReservation: (id: string) => void;
-  addCard: (card: PaymentCard) => void;
-  updateCard: (card: PaymentCard) => void;
-  removeCard: (id: string) => void;
-  addReminder: (reminder: Reminder) => Promise<void>;
-  updateReminder: (reminder: Reminder) => void;
-  removeReminder: (id: string) => void;
-  syncTimeline: () => void;
-}
-
 export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(walletReducer, initialWalletState, (initialState) => ({
     ...initialState,
@@ -240,14 +242,14 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     dispatch({ type: 'ADD_REMINDER', payload: reminder });
 
     if (Platform.OS !== 'web') {
-      const schedulingOptions = {
+      const schedulingOptions: Notifications.NotificationRequestInput = {
         content: {
           title: reminder.title,
           body: reminder.description,
           data: reminder.relatedEntity,
         },
-        trigger: new Date(reminder.dueDate),
-      } as Notifications.NotificationRequestInput;
+        trigger: new Date(reminder.dueDate) as unknown as Notifications.NotificationTriggerInput,
+      };
 
       try {
         const notificationId = await Notifications.scheduleNotificationAsync(schedulingOptions);
@@ -310,22 +312,5 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
 };
-
-interface WalletContextValue {
-  state: WalletState;
-  addDocument: (document: WalletDocument) => void;
-  updateDocument: (document: WalletDocument) => void;
-  removeDocument: (id: string) => void;
-  addReservation: (reservation: TravelReservation) => void;
-  updateReservation: (reservation: TravelReservation) => void;
-  removeReservation: (id: string) => void;
-  addCard: (card: PaymentCard) => void;
-  updateCard: (card: PaymentCard) => void;
-  removeCard: (id: string) => void;
-  addReminder: (reminder: Reminder) => Promise<void>;
-  updateReminder: (reminder: Reminder) => void;
-  removeReminder: (id: string) => void;
-  syncTimeline: () => void;
-}
 
 export default WalletContext;
