@@ -6,12 +6,14 @@ import HomeScreen from '../screens/HomeScreen';
 import DocumentsScreen from '../screens/DocumentsScreen';
 import CardsScreen from '../screens/CardsScreen';
 import TimelineScreen from '../screens/TimelineScreen';
+import ScannerScreen from '../screens/ScannerScreen';
 
 export type RootTabParamList = {
   Home: undefined;
   Documents: undefined;
   Cards: undefined;
   Timeline: undefined;
+  Scan: undefined;
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -64,6 +66,14 @@ const RootNavigator = () => {
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="credit-card-chip" color={color} size={size} />
             ),
+          }}
+        />
+        <Tab.Screen
+          name="Scan"
+          component={ScannerScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => <Feather name="camera" color={color} size={size} />,
+            title: 'Scan',
           }}
         />
         <Tab.Screen

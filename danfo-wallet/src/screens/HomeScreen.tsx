@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import ReminderCard from '../components/ReminderCard';
 import SectionHeader from '../components/SectionHeader';
 import TimelineItem from '../components/TimelineItem';
@@ -8,9 +9,11 @@ import PaymentCardView from '../components/PaymentCard';
 import ReservationCard from '../components/ReservationCard';
 import { colors, spacing } from '../theme';
 import useWallet from '../hooks/useWallet';
+import useAuth from '../hooks/useAuth';
 
 const HomeScreen = () => {
   const { state } = useWallet();
+  const { user, signOut } = useAuth();
 
   const nextReservation = useMemo(
     () =>
@@ -41,11 +44,16 @@ const HomeScreen = () => {
       <View style={styles.hero}>
         <View>
           <Text style={styles.greeting}>Welcome back,</Text>
-          <Text style={styles.user}>Oluwaseun</Text>
+          <Text style={styles.user}>{user?.user_metadata?.firstName ?? 'Traveler'}</Text>
         </View>
-        <View style={styles.heroBadge}>
-          <Feather name="globe" size={18} color={colors.textPrimary} />
-          <Text style={styles.heroBadgeText}>Trip ready</Text>
+        <View style={styles.heroActions}>
+          <View style={styles.heroBadge}>
+            <Feather name="globe" size={18} color={colors.textPrimary} />
+            <Text style={styles.heroBadgeText}>Trip ready</Text>
+          </View>
+          <TouchableOpacity onPress={signOut}>
+            <Text style={styles.signOut}>Sign out</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -66,9 +74,7 @@ const HomeScreen = () => {
       <View style={styles.section}>
         <SectionHeader title="Reminders" subtitle="Keep ahead of deadlines" />
         {upcomingReminders.length > 0 ? (
-          upcomingReminders.map((reminder) => (
-            <ReminderCard key={reminder.id} reminder={reminder} />
-          ))
+          upcomingReminders.map((reminder) => <ReminderCard key={reminder.id} reminder={reminder} />)
         ) : (
           <Text style={styles.emptyText}>No reminders scheduled.</Text>
         )}
@@ -108,6 +114,11 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
   },
+  heroActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
   heroBadge: {
     backgroundColor: colors.overlay,
     borderRadius: 999,
@@ -126,6 +137,11 @@ const styles = StyleSheet.create({
   },
   section: {
     marginTop: spacing.xl,
+  },
+  signOut: {
+    color: colors.textSecondary,
+    fontSize: 12,
+    textDecorationLine: 'underline',
   },
   emptyText: {
     color: colors.textSecondary,
