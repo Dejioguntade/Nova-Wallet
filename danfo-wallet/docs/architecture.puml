@@ -1,0 +1,48 @@
+@startuml DanfoWalletArchitecture
+skinparam backgroundColor #0B0D17
+skinparam handwritten false
+skinparam shadowing false
+skinparam roundcorner 15
+skinparam defaultTextAlignment center
+
+actor User
+rectangle "Mobile Client\n(Android/iOS)" as Mobile {
+  frame "Capture & Import" {
+    component "Camera / Gallery" as Camera
+    component "Email Import" as Email
+    component "File Picker" as FilePicker
+  }
+  frame "Processing" {
+    component "OCR Engine\n(ML Kit / Tesseract)" as OCR
+    component "Barcode/MRZ Parser\n(ZXing / libmrz)" as Parser
+    component "Template Renderer\n(Skia / Compose / CoreGraphics)" as Renderer
+    component "Encryption Layer\n(AES-256 + Keychain/Keystore)" as Encryptor
+  }
+  frame "Storage" {
+    database "Encrypted Vault\n(SQLCipher / SecureStore)" as Vault
+    component "Activity Log" as ActivityLog
+  }
+  frame "Sync" {
+    component "Encrypted Backup Service" as Backup
+  }
+}
+
+User --> Camera : Scan documents
+User --> Email : Forward e-tickets
+User --> FilePicker : Upload PDFs
+Camera --> OCR : Extract text/images
+Email --> OCR
+FilePicker --> OCR
+OCR --> Parser : Text + codes
+Parser --> Renderer : Structured payload
+Renderer --> Encryptor : Rendered bitmap
+Encryptor --> Vault : Store encrypted assets
+Parser --> Vault : Store metadata
+Vault --> ActivityLog : Append entry
+User --> Mobile : Manage vault / view timeline
+Vault --> Renderer : Decrypt + render on demand
+Mobile --> Backup : Optional sync
+Backup --> Vault : Restore request
+Encryptor --> Backup : Zero-knowledge encrypted packages
+
+@enduml
